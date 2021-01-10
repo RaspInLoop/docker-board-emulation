@@ -1,116 +1,75 @@
 /*
- * Time operation macros based on sys/time.h
- * Copyright 2013 Balint Reczey <balint@balintreczey.hu>
- *
- * This file is part of libfaketime.
- *
- * libfaketime is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License v2 as published by the Free
- * Software Foundation.
- *
- * libfaketime is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License v2 along
- * with libfaketime; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Time operation inline functions based on sys/time.h
  */
 
 #ifndef TIME_OPS_H
 #define TIME_OPS_H
 #include <time.h>
 
-#define SEC_TO_uSEC 1000000
-#define SEC_TO_nSEC 1000000000
+static struct timespec timespec_zero = {0 ,0};
 
-/* Convenience macros for operations on timevals.
-   NOTE: `timercmp' does not work for >= or <=.  */
-#define timerisset2(tvp, prefix) ((tvp)->tv_sec || (tvp)->tv_##prefix##sec)
-#define timerclear2(tvp, prefix) ((tvp)->tv_sec = (tvp)->tv_##prefix##sec = 0)
-#define timercmp2(a, b, CMP, prefix)                                \
-  (((a)->tv_sec == (b)->tv_sec) ?                                   \
-   ((a)->tv_##prefix##sec CMP (b)->tv_##prefix##sec) :              \
-   ((a)->tv_sec CMP (b)->tv_sec))
-#define timeradd2(a, b, result, prefix)                             \
-  do                                                                \
-  {                                                                 \
-    (result)->tv_sec = (a)->tv_sec + (b)->tv_sec;                   \
-    (result)->tv_##prefix##sec = (a)->tv_##prefix##sec +            \
-      (b)->tv_##prefix##sec;                                        \
-    if ((result)->tv_##prefix##sec >= SEC_TO_##prefix##SEC)         \
-      {                                                             \
-        ++(result)->tv_sec;                                         \
-        (result)->tv_##prefix##sec -= SEC_TO_##prefix##SEC;         \
-      }                                                             \
-  } while (0)
-#define timersub2(a, b, result, prefix)                             \
-  do                                                                \
-  {                                                                 \
-    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;                   \
-    (result)->tv_##prefix##sec = (a)->tv_##prefix##sec -            \
-      (b)->tv_##prefix##sec;                                        \
-    if ((result)->tv_##prefix##sec < 0)                             \
-    {                                                               \
-      --(result)->tv_sec;                                           \
-      (result)->tv_##prefix##sec += SEC_TO_##prefix##SEC;           \
-    }                                                               \
-  } while (0)
-#define timermul2(tvp, c, result, prefix)                           \
-  do                                                                \
-  {                                                                 \
-    int64_t tmp_time;                                             \
-    tmp_time = (c) * (int64_t) ((tvp)->tv_sec * SEC_TO_##prefix##SEC +        \
-               (int64_t) (tvp)->tv_##prefix##sec);                            \
-    (result)->tv_##prefix##sec = tmp_time % SEC_TO_##prefix##SEC;   \
-    (result)->tv_sec = (tmp_time - (result)->tv_##prefix##sec) /    \
-      SEC_TO_##prefix##SEC;                                         \
-    if ((result)->tv_##prefix##sec < 0)                             \
-    {                                                               \
-      (result)->tv_##prefix##sec +=  SEC_TO_##prefix##SEC;          \
-      (result)->tv_sec -= 1;                                        \
-    }                                                               \
-  } while (0)
+inline uint64_t as_nanoseconds(const struct timespec* ts) __attribute__((always_inline));
+inline void to_timespec(uint64_t nanos, struct timespec *result) __attribute__((always_inline));
+inline bool timespec_is_set (const struct timespec *t) __attribute__((always_inline));
+inline void timespec_clear (struct timespec *t) __attribute__((always_inline));
+inline void timespec_add (const struct timespec* a, const struct timespec* b, struct timespec *result) __attribute__((always_inline));
+inline void timespec_sub (const struct timespec *a, const struct timespec *b, struct timespec *result) __attribute__((always_inline));
+inline int timespec_cmp (const struct timespec *a, const struct timespec *b)  __attribute__((always_inline));
 
-/* ops for microsecs */
-#ifndef timerisset
-#define timerisset(tvp) timerisset2(tvp,u)
-#endif
-#ifndef timerclear
-#define timerclear(tvp) timerclear2(tvp, u)
-#endif
-#ifndef timercmp
-#define timercmp(a, b, CMP) timercmp2(a, b, CMP, u)
-#endif
-#ifndef timeradd
-#define timeradd(a, b, result) timeradd2(a, b, result, u)
-#endif
-#ifndef timersub
-#define timersub(a, b, result) timersub2(a, b, result, u)
-#endif
-#ifndef timermul
-#define timermul(a, c, result) timermul2(a, c, result, u)
-#endif
+inline uint64_t as_nanoseconds(const struct timespec* ts) 
+{
+    return ts->tv_sec * (uint64_t)1000000000L + ts->tv_nsec;
+}
 
-/* ops for nanosecs */
-#ifndef timespecisset
-#define timespecisset(tvp) timerisset2(tvp,n)
-#endif
-#ifndef timespecclear
-#define timespecclear(tvp) timerclear2(tvp, n)
-#endif
-#ifndef timespeccmp
-#define timespeccmp(a, b, CMP) timercmp2(a, b, CMP, n)
-#endif
-#ifndef timespecadd
-#define timespecadd(a, b, result) timeradd2(a, b, result, n)
-#endif
-#ifndef timespecsub
-#define timespecsub(a, b, result) timersub2(a, b, result, n)
-#endif
-#ifndef timespecmul
-#define timespecmul(a, c, result) timermul2(a, c, result, n)
-#endif
+inline void to_timespec(uint64_t nanos, struct timespec *result) 
+{
+    result->tv_sec = nanos / 1000000000L;
+    result->tv_nsec =  nanos % 1000000000L;
+}
+
+inline bool timespec_is_set (const struct timespec *t) 
+{
+   return t->tv_nsec || t->tv_sec;
+}
+
+inline void timespec_clear (struct timespec *t)
+{
+   t->tv_nsec = 0;
+   t->tv_sec = 0;
+}
+
+inline void timespec_add (const struct timespec* a, const struct timespec* b, struct timespec *result)
+{
+   result->tv_sec = a->tv_sec + b->tv_sec;
+   result->tv_nsec = a->tv_nsec + b->tv_nsec;
+   if (result->tv_nsec > 1000000000L) {
+      result->tv_sec += result->tv_nsec / 1000000000L;
+      result->tv_nsec = result->tv_nsec % 1000000000L;
+   } 
+}
+
+inline void timespec_sub (const struct timespec *a, const struct timespec *b, struct timespec *result)
+{   
+   result->tv_sec = a->tv_sec - b->tv_sec;
+   if (a->tv_nsec < b->tv_nsec) {
+      result->tv_sec -=1;
+       result->tv_nsec = (a->tv_nsec + 1000000000L) - b->tv_nsec;
+   } else {
+      result->tv_nsec = a->tv_nsec - b->tv_nsec;
+   }
+}
+
+inline int timespec_cmp (const struct timespec *a, const struct timespec *b)
+{   
+   struct timespec diff;
+   timespec_sub(a, b, &diff);
+   if (!  timespec_is_set(&diff)) {
+      return 0;
+   } else if (diff.tv_sec >= 0) {
+      return 1;
+   } else {
+      return -1;
+   }
+}
 
 #endif

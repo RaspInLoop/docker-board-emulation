@@ -5,7 +5,7 @@ PREFIX ?= /usr/local
 LIBDIRNAME ?= /lib/simultime
 PLATFORM ?=$(shell uname)
 
-CFLAGS += -g -std=gnu99 -Wall -Wextra -Werror -Wno-nonnull-compare -fPIC -DPREFIX='"'$(PREFIX)'"' -DLIBDIRNAME='"'$(LIBDIRNAME)'"' $(FAKETIME_COMPILE_CFLAGS)
+CFLAGS += -g -std=gnu99 -Wall -Wextra -Werror -Wno-nonnull-compare -fPIC -DPREFIX='"'$(PREFIX)'"' -DLIBDIRNAME='"'$(LIBDIRNAME)'"' $(SIMULTIME_COMPILE_CFLAGS)
 
 LIB_LDFLAGS += -shared
 
@@ -19,6 +19,9 @@ LIBS_OBJ = libsimultime.o
 
 SONAME = 1
 LIBS = libsimultime.so.${SONAME}
+#TEST_SRC = test/clock_nanosleep.c test/clock_nanosleepcopy.c
+TEST_SRCS := $(wildcard test/*.c)
+TEST_EXEC := $(basename ${TEST_SRCS})
 
 all: ${LIBS}
 
@@ -30,7 +33,8 @@ libsimultime.so.${SONAME}: libsimultime.o src/libsimultime.map
 	${CC} -o $@ -Wl,-soname,$@ ${LDFLAGS} ${LIB_LDFLAGS} $< ${LDADD}
 
 clean:
-	@rm -f ${LIBS_OBJ} ${LIBS}
+	@rm -f ${LIBS_OBJ} ${LIBS} $(TEST_EXEC)
+
 
 distclean: clean
 	@echo
@@ -45,4 +49,10 @@ uninstall:
 	for f in ${LIBS}; do rm -f "${DESTDIR}${PREFIX}${LIBDIRNAME}/$$f"; done
 	rmdir "${DESTDIR}${PREFIX}${LIBDIRNAME}"
 
-.PHONY: all clean distclean install uninstall
+$(TEST_EXEC): %: %.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+test: ${LIBS} $(TEST_EXEC)
+	avocado run test/*Test.py
+
+.PHONY: all clean distclean install uninstall test
