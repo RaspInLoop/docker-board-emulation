@@ -1,0 +1,63 @@
+{
+  "java_type": "org.raspinloop.emulator.hardwareemulation.dummy.DummyGpioBoardProperties",
+  "componentName": "My Custom Board!",
+  "guid": "1234-1234-1234",
+  "unusedPins": [
+    {
+      "provider": "Dummy board Provider",
+      "address": 1,
+      "name": "I1",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    },
+    {
+      "provider": "Dummy board Provider",
+      "address": 3,
+      "name": "O1",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    },
+    {
+      "provider": "Dummy board Provider",
+      "address": 4,
+      "name": "O2",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    },
+    {
+      "provider": "Dummy board Provider",
+      "address": 5,
+      "name": "O3",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    }
+  ],
+  "outputPins": [
+    {
+      "provider": "Dummy board Provider",
+      "address": 2,
+      "name": "O0",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    }
+  ],
+  "inputPins": [
+    {
+      "provider": "Dummy board Provider",
+      "address": 0,
+      "name": "I0",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    }
+  ],
+  "extentionComponents": [],
+  "uartComponents": [],
+  "spiComponents": [],
+  "i2cComponents": []
+}

@@ -1,0 +1,67 @@
+{
+  "java_type": "org.raspinloop.emulator.hardwareemulation.dummy.DummyGpioBoardProperties",
+  "type": "TEST DUMY BOARD",
+  "componentName": "My Custom Board!",
+  "simulatedProviderName": "Dummy board Provider",
+  "guid": "1234-1234-1234",
+  "unusedPins": [
+    {
+      "provider": "Dummy board Provider",
+      "address": 1,
+      "name": "I1",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    },
+    {
+      "provider": "Dummy board Provider",
+      "address": 3,
+      "name": "O1",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    },
+    {
+      "provider": "Dummy board Provider",
+      "address": 4,
+      "name": "O2",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    }
+  ],
+  "outputPins": [
+    {
+      "provider": "Dummy board Provider",
+      "address": 2,
+      "name": "O0",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    }
+  ],
+  "inputPins": [
+    {
+      "provider": "Dummy board Provider",
+      "address": 0,
+      "name": "I0",
+      "supportedPinMode": [],
+      "supportedResistance": [],
+      "supportedEdges": []
+    }
+  ],
+  "extentionComponents": [
+    {
+      "java_type": "org.raspinloop.emulator.hardwareemulation.dummy.DummyBoardExtensionProperties",
+      "componentName": "My Dummy Hardware Extention",
+      "type": "Hardware_pluged_in_pin_header",
+      "guid": "9999-9999-9999",
+      "implementationClassName": "org.raspinloop.emulator.hardwareemulation.dummy.DummyBoardExtension",
+      "simulatedProviderName": "Dummy Hardware Extention",
+      "coeficient": 3.14
+    }
+  ],
+  "uartComponents": [],
+  "spiComponents": [],
+  "i2cComponents": []
+}
