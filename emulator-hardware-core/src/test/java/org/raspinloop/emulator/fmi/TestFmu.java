@@ -14,12 +14,8 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.raspinloop.emulator.fmi.ClassLoaderBuilderFactory;
-import org.raspinloop.emulator.fmi.FMU;
-import org.raspinloop.emulator.fmi.FMUGenerateException;
-import org.raspinloop.emulator.fmi.FmiReferenceRegister;
-import org.raspinloop.emulator.fmi.HardwareBuilderFactory;
 import org.raspinloop.emulator.hardwareemulation.HardwareEmulation;
+import org.raspinloop.emulator.hardwareemulation.ReferenceNotFound;
 import org.raspinloop.emulator.hardwareemulation.dummy.DummyBoardExtensionProperties;
 import org.raspinloop.emulator.hardwareemulation.dummy.DummyGpioBoard;
 import org.raspinloop.emulator.hardwareemulation.dummy.DummyGpioBoardProperties;
@@ -57,7 +53,7 @@ class TestFmu {
 	}
 
 	@Test
-	void testGenerateDescription() throws IOException, JAXBException {
+	void testGenerateDescription() throws IOException, JAXBException, ReferenceNotFound {
 		Path tmp = Files.createTempFile("raspinloop", "_UT");
 		FMU fmu = new FMU(tmp.toFile());
 
@@ -78,7 +74,7 @@ class TestFmu {
 	}
 
 	@Test
-	void testGenerateDescriptionWithComponent() throws IOException, JAXBException {
+	void testGenerateDescriptionWithComponent() throws IOException, JAXBException, ReferenceNotFound {
 		Path tmp = Files.createTempFile("raspinloop", "_UT");
 		FMU fmu = new FMU(tmp.toFile());
 

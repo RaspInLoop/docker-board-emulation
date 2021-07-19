@@ -72,7 +72,6 @@ recompile:`dtc -O dtb -o bootpart_raspios/bcm2710-rpi-3-b.dtb bcm2710-rpi-3-b.dt
 
 
 # run
-
 `qemu-system-aarch64   -kernel bootpart_raspios/kernel8.img   -dtb bootpart_raspios/bcm2710-rpi-3-b.dtb  -M raspi3 -m 1024  -append "console=ttyAMA0 root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4" -nographic   -sd 2020-12-02-raspios-buster-armhf-lite.img -device usb-net,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:22`
 
 with usb-storage: -qemu-system-aarch64   -kernel bootpart_raspios/kernel8.img   -dtb bootpart_raspios/bcm2710-rpi-3-b2.dtb  -M raspi3 -m 1024  -append "console=ttyAMA0 root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4" -nographic   -sd 2020-12-02-raspios-buster-armhf-lite.img -device usb-net,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:22 -drive if=none,id=stick,file=myimage.img -device usb-storage,drive=stick

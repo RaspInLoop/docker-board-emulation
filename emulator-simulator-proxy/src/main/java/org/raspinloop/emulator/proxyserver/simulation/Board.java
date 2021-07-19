@@ -10,9 +10,8 @@ import org.raspinloop.emulator.hardwareemulation.HardwareEmulation;
 import org.raspinloop.emulator.hardwareemulation.HardwareEmulationException;
 import org.raspinloop.emulator.hardwareproperties.BoardHardwareProperties;
 import org.raspinloop.emulator.proxyserver.messaging.GpiostateOutboundAdapter;
-import org.raspinloop.orchestrator.api.EmulatorParam;
+import org.raspinloop.emulator.proxyserver.qemu.EmulatorParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.annotation.OnStateEntry;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +33,7 @@ public class Board {
 	}
 
 	@Setter
-	private EmulatorParam parameter;
+	private Object hardwareProperties;
 	
 	// HwEmulation is the interface used by the simulation side of proxy.
 	@Getter
@@ -66,7 +65,7 @@ public class Board {
 	// then deserialization to hardwareProperties.
 	public void configure() throws JsonProcessingException, HardwareEmulationException {
 		ObjectMapper mapper = new ObjectMapper();
-		String json = mapper.writeValueAsString(parameter.getHardwareproperties());
+		String json = mapper.writeValueAsString(hardwareProperties);
 		HardwareClassFactory hcl = HardwareClassFactory.instance();
 		GsonProperties deserialiser = new GsonProperties(hcl);
 		BoardHardwareProperties hardwareProperties = deserialiser.read(json);

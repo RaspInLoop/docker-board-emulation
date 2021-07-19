@@ -6,6 +6,7 @@ import static org.springframework.integration.dsl.Transformers.objectToString;
 
 import org.raspinloop.emulator.proxyserver.messaging.SimulatedTimeMessageProducer;
 import org.raspinloop.emulator.proxyserver.messaging.SimulatedTimeOutboundAdapter;
+import org.raspinloop.emulator.proxyserver.messaging.SmartLifeCycleTcpSendingMessageHandler;
 import org.raspinloop.emulator.proxyserver.simulation.time.SimulatedClock;
 import org.raspinloop.emulator.proxyserver.simulation.time.SimulatedTimeMessage;
 import org.raspinloop.emulator.proxyserver.simulation.time.SleepingMessage;
@@ -47,12 +48,21 @@ public class SimulTimeMessagingConfig {
 	IntegrationFlow outcomingSimulationTimeFlow(
 			@Qualifier("simulatedTimeMessageProducer") @Autowired MessageProducerSupport simulatedTimeMessageProducer,	
 			@Autowired  TcpSendingMessageHandler tcpSendingMessageHandler) {
+		simulatedTimeMessageProducer.setAutoStartup(false);
+	
 		return IntegrationFlows.from(simulatedTimeMessageProducer)
 				.transform(objectToString())
 				.handle(tcpSendingMessageHandler)
 				.get();
 	}
 
+    @Bean
+    public IntegrationFlow controlBusFlow() {
+        return IntegrationFlows.from("controlBus")
+                  .controlBus()
+                  .get();
+    }
+    
 	@Bean
 	public IntegrationFlow incomingSimulationTimeFlow( TcpReceivingChannelAdapter tcpReceivingChannelAdapter,
 			SimulatedTimeOutboundAdapter simulatedTimeOutboundAdapter) {
@@ -71,8 +81,10 @@ public class SimulTimeMessagingConfig {
 	@Bean
 	public TcpSendingMessageHandler tcpSendingMessageHandler(
 			@Autowired AbstractClientConnectionFactory connectionFactory) {
-		TcpSendingMessageHandler tcpSendingMessageHandler = new TcpSendingMessageHandler();
+		SmartLifeCycleTcpSendingMessageHandler tcpSendingMessageHandler = new SmartLifeCycleTcpSendingMessageHandler();		
+		tcpSendingMessageHandler.setAutoStartup(false);
 		tcpSendingMessageHandler.setClientMode(true);
+		tcpSendingMessageHandler.setLoggingEnabled(false);
 		tcpSendingMessageHandler.setConnectionFactory(connectionFactory);
 		return tcpSendingMessageHandler;
 	}
@@ -83,7 +95,7 @@ public class SimulTimeMessagingConfig {
 
 		// Each connection factory can have only one listener (channel adapter)
 		// registered, so it's okay to
-		// create it here as an 'anonomous bean' rather than 'fully blown bean'.
+		// create it here as an 'anonymous bean' rather than 'fully blown bean'.
 
 		TcpReceivingChannelAdapter tcpReceivingChannelAdapter = new TcpReceivingChannelAdapter();
 

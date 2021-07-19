@@ -3,7 +3,11 @@
 #
 # Usage : make mvn_setting=~/private/raspinloop/settings.xml qemu_exec=/home/frma/private/raspinloop/qemu/build/qemu-system-aarch64     #
 # 	- With qemu_exec pointing to the latest build from https://github.com/RaspInLoop/qemu-raspinloop
-#  In Ubuntu you need to change access on /boot/vmlinuz*:  chmod 755 /boot/vmlinuz*
+# 
+# Known Problem:
+#
+#  - In Ubuntu you need to change access on /boot/vmlinuz*:  chmod 755 /boot/vmlinuz*
+#  - VirtualBox cannot be running
 #
 ##########################################################################################################################################
 SHELL:=/bin/bash
@@ -54,6 +58,7 @@ $(JAR):
 
 dependencies: $(JAR)
 	mkdir -p ${BUILD_DIR}/${JAVA_APP}/dependency
+	rm -rf  ${BUILD_DIR}/${JAVA_APP}/dependency/*
 	cd ${BUILD_DIR}/${JAVA_APP}/dependency;jar -xf  ${ROOT_DIR}/${JAVA_APP}/target/*.jar
 
 qemu:

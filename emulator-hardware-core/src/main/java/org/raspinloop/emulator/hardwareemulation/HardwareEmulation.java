@@ -43,7 +43,7 @@ public interface HardwareEmulation {
 	public HardwareBuilderFactory getBuilderFactory();
 	
 
-	public List<Fmi2ScalarVariable> getModelVariables();
+	public List<Fmi2ScalarVariable> getModelVariables() throws ReferenceNotFound;
 	
 	/**
 	 * Informs the FMUTester to enter Initialization Mode.
@@ -80,8 +80,9 @@ public interface HardwareEmulation {
 	 * models.
 	 * @param refs : list of variable reference
 	 * @return Real values in the same order than refs 
+	 * @throws ReferenceNotFound 
 	 */
-	List<Double> getReal(List<Integer> refs);
+	List<Double> getReal(List<Integer> refs) throws ReferenceNotFound;
 
 	/**
 	 * Get actual values of variables by providing their variable references. [These functions are
@@ -89,8 +90,9 @@ public interface HardwareEmulation {
 	 * models.
 	 * @param refs : list of variable reference
 	 * @return int values in the same order than refs 
+	 * @throws ReferenceNotFound 
 	 */
-	List<Integer> getInteger(List<Integer> refs);
+	List<Integer> getInteger(List<Integer> refs) throws ReferenceNotFound;
 	
 	/**
 	 * Get actual values of variables by providing their variable references. [These functions are
@@ -98,29 +100,33 @@ public interface HardwareEmulation {
 	 * models.
 	 * @param refs : list of variable reference
 	 * @return Boolean values in the same order than refs 
+	 * @throws ReferenceNotFound 
 	 */
-	List<Boolean> getBoolean(List<Integer> refs);
+	List<Boolean> getBoolean(List<Integer> refs) throws ReferenceNotFound;
 
 	/**
 	 * Set parameters, inputs, start values and re-initialize caching of variables that depend on these variables
 	 * @param ref_values mapped value/reference collection
 	 * @return succeed or not 
+	 * @throws ReferenceNotFound 
 	 */
-	boolean  setReal(Map<Integer, Double> refValues);
+	boolean  setReal(Map<Integer, Double> refValues) throws ReferenceNotFound;
 	
 	/**
 	 * Set parameters, inputs, start values and re-initialize caching of variables that depend on these variables
 	 * @param ref_values mapped value/reference collection
 	 * @return succeed or not 
+	 * @throws ReferenceNotFound 
 	 */
-	boolean  setInteger(Map<Integer, Integer> refValues);
+	boolean  setInteger(Map<Integer, Integer> refValues) throws ReferenceNotFound;
 	
 	/**
 	 * Set parameters, inputs, start values and re-initialize caching of variables that depend on these variables
 	 * @param refValues mapped value/reference collection
 	 * @return succeed or not 
+	 * @throws ReferenceNotFound 
 	 */
-	boolean  setBoolean(Map<Integer, Boolean> refValues);
+	boolean  setBoolean(Map<Integer, Boolean> refValues) throws ReferenceNotFound;
 
 
 	

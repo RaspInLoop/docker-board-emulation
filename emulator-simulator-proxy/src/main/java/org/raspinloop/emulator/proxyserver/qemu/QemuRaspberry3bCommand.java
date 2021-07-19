@@ -3,12 +3,11 @@ package org.raspinloop.emulator.proxyserver.qemu;
 import java.util.Arrays;
 import java.util.List;
 
-import org.raspinloop.orchestrator.api.EmulatorParam;
-import org.raspinloop.orchestrator.api.Raspberrypi3bOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 public class QemuRaspberry3bCommand implements QemuCommand {
@@ -19,7 +18,7 @@ public class QemuRaspberry3bCommand implements QemuCommand {
 	@Override
 	public void setParameter(EmulatorParam param) {
 		if (param instanceof Raspberrypi3bOptions) {
-		parameter = (Raspberrypi3bOptions)param;		
+		parameter = (Raspberrypi3bOptions)param;
 		}
 		else {
 			throw new IllegalArgumentException(param.getClass() + "cannot be set to " + this.getClass());
@@ -55,25 +54,28 @@ public class QemuRaspberry3bCommand implements QemuCommand {
 		return Raspberrypi3bOptions.class;
 	}
 	
+	public String getImage() {
+		return parameter.getImage();
+	}
+	
 	@Override
 	public List<String> toCommandList() {
 		if (parameter == null) {
 			throw new RuntimeException("parameter not set.");
 		}
+		String image = "/raspberry/" + parameter.getImage();
 		return Arrays.asList(
 				qemuPath, 
 				"-kernel", kernelPath,
 				"-dtb", dtbPath,
 				"-M", "raspi3",
 				"-m", "1024",
-				"-append", "root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4",
-				"-sd", parameter.getImage(),
+				"-append", "console=ttyAMA0 root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4",
+				"-sd", image,
 				"-device", "usb-net,netdev=net0",
 				"-netdev", String.format("user,id=net0,hostfwd=tcp::%d-:22", sshPort),
 				"-chardev", String.format("socket,id=sock0,host=0.0.0.0,port=%d,server,nowait,telnet", simulTimeSocketPort),
 				"-device", "usb-serial,chardev=sock0",
 				"-nographic");
 	}
-
-
 }

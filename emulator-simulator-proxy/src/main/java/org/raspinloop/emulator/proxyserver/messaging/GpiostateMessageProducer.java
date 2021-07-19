@@ -5,6 +5,7 @@ import org.raspinloop.emulator.hardwareemulation.IoChange;
 import org.raspinloop.emulator.proxyserver.simulation.Board;
 import org.springframework.integration.endpoint.MessageProducerSupport;
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.annotation.OnStateEntry;
 
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -15,8 +16,10 @@ public class GpiostateMessageProducer extends MessageProducerSupport {
 
 	public GpiostateMessageProducer(Board board) {
 		this.gpio = board.getGpioProvider();
+		setAutoStartup(false);
 	}
 	
+	@OnStateEntry(target = "EMULATING")
 	@Override
 	protected void doStart() {
 

@@ -39,6 +39,7 @@ import org.raspinloop.emulator.fmi.modeldescription.Fmi2VariableDependency;
 import org.raspinloop.emulator.fmi.modeldescription.FmiModelDescription;
 import org.raspinloop.emulator.fmi.modeldescription.FmiModelDescription.LogCategories.Category;
 import org.raspinloop.emulator.hardwareemulation.HardwareEmulation;
+import org.raspinloop.emulator.hardwareemulation.ReferenceNotFound;
 import org.raspinloop.emulator.hardwareproperties.HardwareProperties;
 
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +95,7 @@ public class FMU {
 
 			}
 
-			catch (IOException | JAXBException e) {
+			catch (IOException | JAXBException | ReferenceNotFound e) {
 				throw new FMUGenerateException("Cannot generate fmu file: " + e.getMessage(), e);
 			}
 		}
@@ -119,7 +120,7 @@ public class FMU {
 		out.flush();
 	}
 
-	byte[] generateDescription(HardwareEmulation ch) throws IOException, JAXBException {
+	byte[] generateDescription(HardwareEmulation ch) throws IOException, JAXBException, ReferenceNotFound {
 
 		FmiModelDescription model = new FmiModelDescription();
 		model.setAuthor(Constants.AUTHOR);

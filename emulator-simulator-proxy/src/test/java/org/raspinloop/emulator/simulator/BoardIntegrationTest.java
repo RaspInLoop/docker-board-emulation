@@ -15,14 +15,15 @@ import org.junit.jupiter.api.Test;
 import org.raspinloop.emulator.hardwareemulation.HardwareEmulationException;
 import org.raspinloop.emulator.hardwareemulation.IoChange;
 import org.raspinloop.emulator.hardwareemulation.IoChange.Change;
+import org.raspinloop.emulator.hardwareemulation.ReferenceNotFound;
 import org.raspinloop.emulator.proxyserver.messaging.GpiostateOutboundAdapter;
+import org.raspinloop.emulator.proxyserver.qemu.EmulatorParam;
 import org.raspinloop.emulator.proxyserver.simulation.Board;
 import org.raspinloop.emulator.proxyserver.simulation.SimulationEvents;
 import org.raspinloop.emulator.proxyserver.simulation.SimulationStates;
 import org.raspinloop.emulator.proxyserver.simulation.StateMachineConfig;
 import org.raspinloop.emulator.proxyserver.simulation.time.SimulatedClock;
 import org.raspinloop.emulator.proxyserver.simulation.time.SimulatedTimeAdapter;
-import org.raspinloop.orchestrator.api.EmulatorParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -47,20 +48,19 @@ class BoardIntegrationTest {
 
     @Autowired
     GpiostateOutboundAdapter gpioOutboundAdapter;
-    
-	private EmulatorParam emulatorParam;
+
+	private Object hardwareProperties;
 
 	@BeforeEach
 	void setup() throws JsonProcessingException, IOException {
-		emulatorParam = new EmulatorParam(){};
 		File jsonConfigFileName = new File(getClass().getClassLoader().getResource("defaultDummyBoard.json").getFile());
 		ObjectMapper mapper = new ObjectMapper();
-		emulatorParam.setHardwareproperties(mapper.readTree(jsonConfigFileName));
+		hardwareProperties = mapper.readTree(jsonConfigFileName);
 	}
 	
     @Test
-    void boardInputTest() throws JsonProcessingException, HardwareEmulationException, InterruptedException {
-    	board.setParameter(emulatorParam);
+    void boardInputTest() throws JsonProcessingException, HardwareEmulationException, InterruptedException, ReferenceNotFound {
+    	board.setHardwareProperties(hardwareProperties);
     	board.configure();
     	board.start();
     	// emulate gpio change: IO0 input is at address 0
@@ -79,8 +79,8 @@ class BoardIntegrationTest {
     }
 
 	@Test
-    void boardOutputTest() throws JsonProcessingException, HardwareEmulationException, InterruptedException {
-    	board.setParameter(emulatorParam);
+    void boardOutputTest() throws JsonProcessingException, HardwareEmulationException, InterruptedException, ReferenceNotFound {
+    	board.setHardwareProperties(hardwareProperties);
     	board.configure();
     	board.start();  	
     	Map<Integer, Boolean> refValue = new HashMap<>();

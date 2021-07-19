@@ -4,8 +4,8 @@ import static org.raspinloop.emulator.proxyserver.simulation.SimulationEvents.FM
 import static org.raspinloop.emulator.proxyserver.simulation.SimulationEvents.FMU_GET_VALUE;
 import static org.raspinloop.emulator.proxyserver.simulation.SimulationEvents.FMU_INSTANCIATE;
 import static org.raspinloop.emulator.proxyserver.simulation.SimulationEvents.FMU_SET_VALUE;
-import static org.raspinloop.emulator.proxyserver.simulation.SimulationEvents.STOP;
 import static org.raspinloop.emulator.proxyserver.simulation.SimulationEvents.FMU_TERMINATE_RESULT;
+import static org.raspinloop.emulator.proxyserver.simulation.SimulationEvents.STOP;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import org.apache.thrift.TException;
 import org.raspinloop.emulator.hardwareemulation.HardwareEmulation;
+import org.raspinloop.emulator.hardwareemulation.ReferenceNotFound;
 import org.raspinloop.emulator.proxyserver.fmi.CoSimulation.Iface;
 import org.raspinloop.emulator.proxyserver.simulation.Board;
 import org.raspinloop.emulator.proxyserver.simulation.SimulationEvents;
@@ -192,19 +193,31 @@ public class FmiAdapter implements Iface {
 	@Override
 	public List<Double> getReal(Instance c, List<Integer> refs) throws TException {
 		stateMachine.sendEvent(FMU_GET_VALUE);
-		return hardwareEmulation.getReal(refs);
+		try {
+			return hardwareEmulation.getReal(refs);
+		} catch (ReferenceNotFound e) {
+			throw new TException(e);
+		}
 	}
 
 	@Override
 	public List<Integer> getInteger(Instance c, List<Integer> refs) throws TException {
 		stateMachine.sendEvent(FMU_GET_VALUE);
-		return hardwareEmulation.getInteger(refs);
+		try {
+			return hardwareEmulation.getInteger(refs);
+		} catch (ReferenceNotFound e) {
+			throw new TException(e);
+		}
 	}
 
 	@Override
 	public List<Boolean> getBoolean(Instance c, List<Integer> refs) throws TException {
 		stateMachine.sendEvent(FMU_GET_VALUE);
-		return hardwareEmulation.getBoolean(refs);
+		try {
+			return hardwareEmulation.getBoolean(refs);
+		} catch (ReferenceNotFound e) {
+			throw new TException(e);
+		}
 	}
 
 	@Override
@@ -216,19 +229,31 @@ public class FmiAdapter implements Iface {
 	@Override
 	public Status setReal(Instance c, Map<Integer, Double> refValues) throws TException {
 		stateMachine.sendEvent(FMU_SET_VALUE);
-		return hardwareEmulation.setReal(refValues)? Status.OK : Status.Error;
+		try {
+			return hardwareEmulation.setReal(refValues)? Status.OK : Status.Error;
+		} catch (ReferenceNotFound e) {
+			throw new TException(e);
+		}
 	}
 
 	@Override
 	public Status setInteger(Instance c, Map<Integer, Integer> refValues) throws TException {
 		stateMachine.sendEvent(FMU_SET_VALUE);
-		return hardwareEmulation.setInteger(refValues)? Status.OK : Status.Error;
+		try {
+			return hardwareEmulation.setInteger(refValues)? Status.OK : Status.Error;
+		} catch (ReferenceNotFound e) {
+			throw new TException(e);
+		}
 	}
 
 	@Override
 	public Status setBoolean(Instance c, Map<Integer, Boolean> refValues) throws TException {
 		stateMachine.sendEvent(FMU_SET_VALUE);
-		return hardwareEmulation.setBoolean(refValues)? Status.OK : Status.Error;
+		try {
+			return hardwareEmulation.setBoolean(refValues)? Status.OK : Status.Error;
+		} catch (ReferenceNotFound e) {
+			throw new TException(e);
+		}
 	}
 
 	@Override

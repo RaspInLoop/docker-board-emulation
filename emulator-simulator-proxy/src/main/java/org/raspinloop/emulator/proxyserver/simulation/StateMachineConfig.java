@@ -1,7 +1,6 @@
 package org.raspinloop.emulator.proxyserver.simulation;
 
 import java.util.EnumSet;
-import java.util.Objects;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -9,10 +9,11 @@ import java.util.Map;
 
 import org.raspinloop.emulator.fmi.modeldescription.Fmi2ScalarVariable;
 import org.raspinloop.emulator.hardwareemulation.HardwareEmulation;
+import org.raspinloop.emulator.hardwareemulation.ReferenceNotFound;
 
 public class FMUTester {
 
-	public static void setVariable(HardwareEmulation hardware, String variableName, double d) {
+	public static void setVariable(HardwareEmulation hardware, String variableName, double d) throws ReferenceNotFound {
 		Integer ref = getVariableRef(hardware, variableName);
 		if (ref != null) {
 			Map<Integer, Double> ref_values = new HashMap<Integer, Double>();
@@ -22,7 +23,7 @@ public class FMUTester {
 	}
 
 
-	public static void setVariable(HardwareEmulation hardware, String variableName, int d) {
+	public static void setVariable(HardwareEmulation hardware, String variableName, int d) throws ReferenceNotFound {
 		Integer ref = getVariableRef(hardware, variableName);
 		if (ref != null) {
 			Map<Integer, Integer> ref_values = new HashMap<Integer, Integer>();
@@ -31,7 +32,7 @@ public class FMUTester {
 		}
 	}
 	
-	public static void setVariable(HardwareEmulation hardware, String variableName, boolean d) {
+	public static void setVariable(HardwareEmulation hardware, String variableName, boolean d) throws ReferenceNotFound {
 		Integer ref = getVariableRef(hardware, variableName);
 		if (ref != null) {
 			Map<Integer, Boolean> ref_values = new HashMap<Integer, Boolean>();
@@ -41,7 +42,7 @@ public class FMUTester {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> T getVariable(HardwareEmulation hardware, String variableName, Class<T> type) {
+	public static <T> T getVariable(HardwareEmulation hardware, String variableName, Class<T> type) throws ReferenceNotFound {
 		Integer ref = getVariableRef(hardware, variableName);
 		if (type.isAssignableFrom(Double.class)) {
 			List<Double> value = hardware.getReal(Arrays.asList(ref));
@@ -64,7 +65,7 @@ public class FMUTester {
 	
 	private static Map<String, Integer> cache = new HashMap<String, Integer>();
 
-	private static Integer getVariableRef(HardwareEmulation hardware, String variableName) {
+	private static Integer getVariableRef(HardwareEmulation hardware, String variableName) throws ReferenceNotFound {
 		if (!cache.containsKey(variableName))
 		{
 			for (Fmi2ScalarVariable modelVariable : hardware.getModelVariables()) {

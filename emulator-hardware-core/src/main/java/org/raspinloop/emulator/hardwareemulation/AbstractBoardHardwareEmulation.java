@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 
 import org.raspinloop.emulator.fmi.FmiReferenceRegister;
 import org.raspinloop.emulator.fmi.HardwareBuilderFactory;
+import org.raspinloop.emulator.fmi.Reference;
 import org.raspinloop.emulator.fmi.modeldescription.DescriptionBuilder;
 import org.raspinloop.emulator.fmi.modeldescription.Fmi2ScalarVariable;
 import org.raspinloop.emulator.fmi.modeldescription.DescriptionBuilder.BooleanBuilder;
@@ -43,7 +44,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 	protected abstract PinState getState(Pin pin);
 
 	@Override
-	public List<Fmi2ScalarVariable> getModelVariables() {
+	public List<Fmi2ScalarVariable> getModelVariables() throws ReferenceNotFound {
 		List<Fmi2ScalarVariable> list = new LinkedList<>();
 		DescriptionBuilder db = new DescriptionBuilder();
 		BooleanBuilder inputBuilder = db.getBooleanBuilder(INPUT);
@@ -66,12 +67,20 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 		return list;
 	}
 
-	private long getOutputReference(Pin pin) {
-		return referenceRegister.get(pin, "output", PinState.class).getRef();
+	private long getOutputReference(Pin pin) throws ReferenceNotFound{
+		Reference<PinState> registreredRef = referenceRegister.get(pin, "output", PinState.class);
+		if (registreredRef == null) {
+			throw new ReferenceNotFound("Could not find reference for pin: " + pin);
+		}
+		return registreredRef.getRef();
 	}
 
-	private long getInputReference(Pin pin) {
-		return referenceRegister.get(pin, "input", PinState.class).getRef();
+	private long getInputReference(Pin pin) throws ReferenceNotFound {
+		Reference<PinState> registreredRef =  referenceRegister.get(pin, "input", PinState.class);
+		if (registreredRef == null) {
+			throw new ReferenceNotFound("Could not find reference for pin: " + pin);
+		}
+		return registreredRef.getRef();
 	}
 	
 	private Pin getPin(int ref) {
@@ -99,7 +108,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 		return properties.getInputPins().contains(pin) || properties.getOutputPins().contains(pin);
 	}
 
-	private HardwareEmulation getSimulatedCompUsingRef(long ref) {
+	private HardwareEmulation getSimulatedCompUsingRef(long ref) throws ReferenceNotFound {
 		for (HardwareProperties comp : properties.getAllComponents()) {
 			HardwareEmulation emulationComp = getEmulationInstance(comp);
 			if (emulationComp != null) {
@@ -113,7 +122,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 	}
 
 	@Override
-	public List<Double> getReal(List<Integer> refs) {
+	public List<Double> getReal(List<Integer> refs) throws ReferenceNotFound {
 		// NO check in pin: there is no pin with real value
 
 		List<Double> result = new ArrayList<>(refs.size());
@@ -135,7 +144,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 	}
 
 	@Override
-	public List<Integer> getInteger(List<Integer> refs) {
+	public List<Integer> getInteger(List<Integer> refs) throws ReferenceNotFound {
 		// NO check in pin: there is no pin with integer value
 		List<Integer> result = new ArrayList<>(refs.size());
 		for (Integer ref : refs) {
@@ -156,7 +165,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 	}
 
 	@Override
-	public List<Boolean> getBoolean(List<Integer> refs) {
+	public List<Boolean> getBoolean(List<Integer> refs) throws ReferenceNotFound {
 		// Boolean value may be either a pin state or a value given by a
 		// component
 		List<Boolean> result = new LinkedList<>();
@@ -183,7 +192,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 	}
 
 	@Override
-	public boolean setReal(Map<Integer, Double> refValues) {
+	public boolean setReal(Map<Integer, Double> refValues) throws ReferenceNotFound {
 		// NO check in pin: there is no pin with real value
 		for (Entry<Integer, Double> ref_value : refValues.entrySet()) {
 			// TODO: we should group ref_value by component in order to make
@@ -201,7 +210,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 	}
 
 	@Override
-	public boolean setInteger(Map<Integer, Integer> refValues) {
+	public boolean setInteger(Map<Integer, Integer> refValues) throws ReferenceNotFound {
 		// NO check in pin: there is no pin with integer value
 		for (Entry<Integer, Integer> ref_value : refValues.entrySet()) {
 			// TODO: we should group ref_value by component in order to make
@@ -219,7 +228,7 @@ public abstract class AbstractBoardHardwareEmulation<T extends BoardHardwareProp
 	}
 	
 	@Override
-	public boolean setBoolean(Map<Integer, Boolean> refValues) {
+	public boolean setBoolean(Map<Integer, Boolean> refValues) throws ReferenceNotFound {
 		// Boolean value may be either a pin state or a component value to set.
 		for (Entry<Integer, Boolean> ref_value : refValues.entrySet()) {
 			Pin pin = getPin(ref_value.getKey());

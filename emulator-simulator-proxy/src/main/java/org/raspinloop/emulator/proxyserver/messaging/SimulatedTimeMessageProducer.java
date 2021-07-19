@@ -1,7 +1,6 @@
 package org.raspinloop.emulator.proxyserver.messaging;
 
 import org.raspinloop.emulator.proxyserver.simulation.time.SimulatedClock;
-import org.raspinloop.emulator.proxyserver.simulation.time.SimulatedTimeAdapter;
 import org.raspinloop.emulator.proxyserver.simulation.time.SimulatedTimeMessage;
 import org.springframework.integration.endpoint.MessageProducerSupport;
 import org.springframework.messaging.Message;

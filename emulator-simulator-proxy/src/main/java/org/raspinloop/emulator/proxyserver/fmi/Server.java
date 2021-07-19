@@ -11,7 +11,6 @@ import org.raspinloop.emulator.proxyserver.fmi.CoSimulation.Iface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.statemachine.annotation.OnStateEntry;
 import org.springframework.statemachine.annotation.WithStateMachine;
 import org.springframework.stereotype.Component;
@@ -23,21 +22,27 @@ public class Server {
 	private TSimpleServer simpleServer;
 	private List<FmiStatusAware> statusListener;
 	private ExecutorService executorService;
+	private Iface fmiAdapter;
+	private int port;
 
 	public Server(@Autowired Iface fmiAdapter, @Autowired List<FmiStatusAware> statusListener,
 			@Value("${fmi.server.port:9090}") int port,
-			@Autowired @Qualifier("singleThreaded") ExecutorService executorService) throws TTransportException {
+			@Autowired @Qualifier("singleThreaded") ExecutorService executorService) {
 		super();
+		this.fmiAdapter = fmiAdapter;
 		this.statusListener = statusListener;
+		this.port = port;
 		this.executorService = executorService;
+		
+		
+	}
+
+	@OnStateEntry(target = "WAITING")
+	public void start() throws TTransportException {
 		CoSimulation.Processor<Iface> processor = new CoSimulation.Processor<Iface>(fmiAdapter);
 		TServerTransport serverTransport;
 		serverTransport = new TServerSocket(port);
 		simpleServer = new TSimpleServer(new TSimpleServer.Args(serverTransport).processor(processor));
-	}
-
-	@OnStateEntry(target = "WAITING")
-	public void start() {
 		executorService.submit(() -> simpleServer.serve());
 		statusListener.forEach(FmiStatusAware::onSimulationWaiting);
 	}
